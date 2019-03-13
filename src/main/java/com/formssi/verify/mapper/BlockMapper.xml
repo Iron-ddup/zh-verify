@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.formssi.verify.mapper.BlockMapper">
+    <select id="getLatestBlockNum"  resultType="java.math.BigInteger">
+        select max(block_num) from block_number
+    </select>
+
+    <insert id="insertBlockNum"  parameterType="com.formssi.verify.domain.BlockNum">
+        insert into block_number(block_id,block_num) values( #{block_id},#{blockNum})
+    </insert>
+
+
+
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!--<update id="updateBlockNum"  parameterType="java.math.BigInteger">-->
+        <!--update block_number set blockNum = #{blockNumber}-->
+    <!--</update>-->
+
+    <select id="getSummary"  resultType="com.formssi.verify.domain.TotalData" parameterType="java.lang.String">
+    select
+    count(distinct  zh.ord_no ) as totalCount,count(CASE WHEN zh.reconciliation_state='1' then zh.id  END) as exceptionCount, IFNULL(SUM( CASE WHEN zh.reconciliation_state='1' then zh.cus_amt  ELSE 0 END),0)+IFNULL(SUM( CASE WHEN zh.reconciliation_state='1'   then zh.cus_fee  ELSE 0 END),0) as exceptionAmt , IFNULL(SUM(zh.cus_amt),0)+IFNULL(SUM(zh.cus_fee),0) as totalAmt
+    from zh_order_balance zh
+        <where>
+            zh.from = '0'
+            <if test="param1!=null and param1!=''">
+                and zh.date >= #{param1}
+            </if>
+            <if test="param2!=null and param1!=''">
+                and #{param2} >=zh.date
+            </if>
+            <if test="param1 = null or param1=''">
+                and zh.date > DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            </if>
+        </where>
+
+	</select>
+
+    <select id="getSummaryGeneration"  resultType="com.formssi.verify.domain.TotalData" parameterType="java.lang.String">
+        select
+        count(distinct  zh.ord_no ) as totalCount,count(CASE WHEN zh.reconciliation_state='1' then zh.id  END) as exceptionCount, IFNULL(SUM( CASE WHEN zh.reconciliation_state='1' then zh.cus_amt  ELSE 0 END),0)+IFNULL(SUM( CASE WHEN zh.reconciliation_state='1'   then zh.cus_fee  ELSE 0 END),0) as exceptionAmt , IFNULL(SUM(zh.cus_amt),0)+IFNULL(SUM(zh.cus_fee),0) as totalAmt
+        from zh_order_generation zh
+        <where>
+            zh.from = '0'
+            <if test="param1!=null and param1!=''">
+                and zh.date >= #{param1}
+            </if>
+            <if test="param2!=null and param1!=''">
+                and #{param2} >=zh.date
+            </if>
+            <if test="param1 = null or param1=''">
+                and zh.date > DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            </if>
+        </where>
+
+    </select>
+
+
+    <select id="getOrderBalnaceDebitRecordList" resultType="com.formssi.verify.domain.OrderBalance" parameterType="com.formssi.verify.dto.SelectObj">
+        SELECT
+        *
+        FROM
+        zh_order_balance zh
+        <where>
+            zh.from = '0'
+            <if test="startDate!=null and startDate!=''">
+                and zh.date >= #{startDate, jdbcType=VARCHAR}
+            </if>
+
+            <if test="endDate!=null and endDate!=''">
+                and zh.date <![CDATA[ <= ]]> #{endDate, jdbcType=VARCHAR}
+            </if>
+            <if test="dzType == 0 ">
+                and zh.reconciliation_state = #{dzType, jdbcType=VARCHAR}
+            </if>
+            <if test="dzType == 1 ">
+                and zh.reconciliation_state = #{dzType, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by zh.date desc
+    </select>
+
+
+    <select id="getOrderGenerationDebitRecordList" resultType="com.formssi.verify.domain.OrderGeneration" parameterType="com.formssi.verify.dto.SelectObj">
+        SELECT
+        *
+        FROM
+        zh_order_generation zh
+        <where>
+            zh.from = '0'
+            <if test="startDate!=null and startDate!=''">
+                and zh.date >= #{startDate, jdbcType=VARCHAR}
+            </if>
+
+            <if test="endDate!=null and endDate!=''">
+                and zh.date <![CDATA[ <= ]]> #{endDate, jdbcType=VARCHAR}
+            </if>
+            <if test="dzType == 0 and dzType !='' ">
+                and zh.reconciliation_state = #{dzType, jdbcType=VARCHAR}
+            </if>
+            <if test="dzType == 1 and dzType !='' ">
+                and zh.reconciliation_state = #{dzType, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by zh.date desc
+    </select>
+
+</mapper>

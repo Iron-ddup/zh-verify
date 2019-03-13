@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.formssi.verify.mapper.BlockMapper">
+    <!-- 目的：为dao接口方法提供sql语句配置 -->
+    <select id="queryBlockNum"  resultType="BigInteger" parameterType="BigInteger">
+        select
+          blockNum
+        from
+          block_number
+        where
+          id=#{tag}
+	</select>
+    <update id="updateBlockNum"  parameterType="com.formssi.verify.domain.BlockNum">
+        update
+          block_number
+        set
+          blockNum = #{blockNumber}
+        where
+          id = #{tag}
+
+    </update>
+    <insert id="updateTransRecord" parameterType="com.formssi.verify.domain.TransRecord">
+        insert into trans_record(serialNum, transTime, accountID, amount, transferType, transactionType, operAccount, selfOwnAccount, loansAccount, transferAccount, isIllegality, illegalityFund, blockNum)
+		values(#{serialNum}, #{transTime}, #{accountID}, #{amount}, #{transferType}, #{transactionType}, #{operAccount}, #{selfOwnAccount}, #{loansAccount}, #{transferAccount}, #{isIllegality}, #{illegalityFund}, #{blockNum})
+
+    </insert>
+
+    <insert id="addBlock"  parameterType="com.formssi.verify.domain.Block">
+		insert into block(blockNumber, blockTime, preBlockHash, currBlockHash)
+		values(#{blockNumber}, #{blockTime}, #{preBlockHash}, #{currBlockHash})
+	</insert>
+    <insert id="addFBlockNum"  parameterType="BigInteger">
+		insert into bad_block(blockNum)
+		values(#{blockNumber})
+	</insert>
+
+
+</mapper>
