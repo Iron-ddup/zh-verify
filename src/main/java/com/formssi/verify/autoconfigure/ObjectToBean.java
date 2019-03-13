@@ -1,5 +1,6 @@
 package com.formssi.verify.autoconfigure;
 
+import com.formssi.verify.utils.PropertiesUtil;
 import com.formssi.verify.wrapper.OrderBalanceVerify;
 import com.formssi.verify.wrapper.OrderGenerationVerify;
 import org.fisco.bcos.web3j.crypto.Credentials;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 /**
@@ -26,6 +28,8 @@ public class ObjectToBean {
 //    contract.address.genverifymapping=0xfcf4a1f566d1e0aa06436098c09d35d9762bf240
 //    contract.address.balverifymapping=0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f
 
+
+
     @Autowired
     Web3j web3j;
     @Autowired
@@ -36,16 +40,31 @@ public class ObjectToBean {
 
     @Bean
     public  OrderBalanceVerify getOrderBalanceVerify(){
+        String verifyBalMappingContAddr="";
+        try {
+            PropertiesUtil.readFile("application.properties");
+            verifyBalMappingContAddr=PropertiesUtil.readValue("contract.address.balverifymapping");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        String Addr="0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f";
-        OrderBalanceVerify balVer = OrderBalanceVerify.load(Addr, web3j, credentials,new StaticGasProvider(gasPrice, gasLimit) );
+//        String Addr="0xd6c8a04b8826b0a37c6d4aa0eaa8644d8e35b79f";
+        OrderBalanceVerify balVer = OrderBalanceVerify.load(verifyBalMappingContAddr, web3j, credentials,new StaticGasProvider(gasPrice, gasLimit) );
         return balVer;
     }
 
     @Bean
     public OrderGenerationVerify getOrderGenerationVerify(){
-        String Addr="0xfcf4a1f566d1e0aa06436098c09d35d9762bf240";
-        OrderGenerationVerify genVer = OrderGenerationVerify.load(Addr, web3j, credentials,new StaticGasProvider(gasPrice, gasLimit) );
+        String verifyGenMappingContAddr="";
+        try {
+            PropertiesUtil.readFile("application.properties");
+            verifyGenMappingContAddr=PropertiesUtil.readValue("contract.address.genverifymapping");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+      //  String Addr="0xfcf4a1f566d1e0aa06436098c09d35d9762bf240";
+        OrderGenerationVerify genVer = OrderGenerationVerify.load(verifyGenMappingContAddr, web3j, credentials,new StaticGasProvider(gasPrice, gasLimit) );
         return genVer;
     }
 }
